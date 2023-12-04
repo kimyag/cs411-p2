@@ -58,6 +58,7 @@ function confirmRemoveBookmark(index, title) {
     var confirmation = confirm(`Are you sure you want to remove the bookmark "${title}"?`);
     if (confirmation) {
         removeBookmark(index);
+        location.reload();
     }
 }
 

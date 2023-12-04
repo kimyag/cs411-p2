@@ -44,7 +44,8 @@ function addBookmark() {
 
             chrome.storage.local.set({ bookmarks: bookmarks }, function () {
                 console.log("Bookmark added or updated successfully!");
-                alert("Bookmark added or updated successfully!")
+                alert("Bookmark added or updated successfully!");
+                location.reload()
             });
         });
     }
