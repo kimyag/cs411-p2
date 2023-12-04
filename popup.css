@@ -1,0 +1,10 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 20px;
+}
+
+#bookmarks-container a {
+  display: block;
+  margin-bottom: 5px;
+}
