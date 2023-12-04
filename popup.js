@@ -37,7 +37,7 @@ function viewBookmarks() {
 
 function displayBookmarks() {
     var bookmarksContainer = document.getElementById("bookmarks-container");
-    bookmarksContainer.innerHTML = ""; // Clear previous bookmarks
+    bookmarksContainer.innerHTML = "";
 
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks;
