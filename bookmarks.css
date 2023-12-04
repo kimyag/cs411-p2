@@ -1,0 +1,80 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+  max-width: 600px;
+  width: 80%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#bookmarks-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+a {
+  display: block;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-decoration: underline; /* Change text decoration to underline */
+  color: #007bff; /* Blue color */
+  background-color: transparent; /* Set background color to transparent */
+  border: none; /* Remove border */
+  border-radius: 0; /* Remove border-radius */
+  transition: color 0.3s; /* Add color transition */
+}
+
+/* Add a hover effect to change the text color on hover */
+a:hover {
+  color: #0056b3; /* Darker blue color on hover */
+}
+
+
+
+.bookmark-title {
+  flex: 1; /* Takes up remaining space */
+  text-decoration: none;
+  color: #007bff; /* Blue color */
+  cursor: pointer; /* Add this line to make it appear as a link */
+}
+
+/* Add this style to your existing CSS */
+.remove-button {
+  cursor: pointer;
+  color: #999;
+  font-size: 16px;
+  background: none; /* Remove background color */
+  border: none; /* Remove border */
+  padding: 4; /* Remove padding */
+  margin: 0; /* Remove margin */
+}
+
+
+
+

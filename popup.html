@@ -5,8 +5,11 @@
   <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 <body>
+  <h1>Welcome to Your Bookmark Extension</h1>
+  <input type="text" id="titleInput" placeholder="Enter Title">
+  <input type="text" id="urlInput" placeholder="Enter URL" readonly>
   <button id="addBookmarkButton">Add Bookmark</button>
-  <button id="viewBookmarksButton">View Bookmarks</button>
+  <div id="bookmarks-container"></div>
   <script src="popup.js"></script>
 </body>
 </html>
