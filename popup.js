@@ -7,11 +7,13 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("titleInput").placeholder = pageTitle;
     });
 
-    displayBookmarks();
-});
+    document.getElementById("addBookmarkButton").addEventListener("click", function () {
+        addBookmark();
+    });
 
-document.getElementById("addBookmarkButton").addEventListener("click", function () {
-    addBookmark();
+    document.getElementById("goToBookmarksButton").addEventListener("click", function () {
+        chrome.tabs.create({ url: chrome.runtime.getURL('bookmarks.html') });
+    });
 });
 
 function addBookmark() {
@@ -20,7 +22,7 @@ function addBookmark() {
 
     if (urlInput) {
         chrome.storage.local.get({ bookmarks: [] }, function (result) {
-            var bookmarks = result.bookmarks;
+            var bookmarks = result.bookmarks || [];
 
             // Check if the URL already exists in bookmarks
             var existingBookmarkIndex = bookmarks.findIndex(function (bookmark) {
@@ -42,75 +44,8 @@ function addBookmark() {
 
             chrome.storage.local.set({ bookmarks: bookmarks }, function () {
                 console.log("Bookmark added or updated successfully!");
-                displayBookmarks();
+                alert("Bookmark added or updated successfully!")
             });
         });
     }
 }
-
-
-function displayBookmarks() {
-    var bookmarksContainer = document.getElementById("bookmarks-container");
-    var searchInput = document.getElementById("searchInput");
-    bookmarksContainer.innerHTML = ""; // Clear previous bookmarks
-
-    chrome.storage.local.get({ bookmarks: [] }, function (result) {
-        var bookmarks = result.bookmarks;
-
-        bookmarks.forEach(function (bookmark, index) {
-            var bookmarkElement = document.createElement("div");
-            var titleElement = document.createElement("a");
-            var removeButton = document.createElement("button");
-            var dateElement = document.createElement("span");
-
-            bookmarkElement.className = "bookmark-item"; // Added a class for styling
-
-            titleElement.href = bookmark.url;
-            titleElement.target = "_blank"; // Open link in a new tab
-            titleElement.textContent = bookmark.title;
-
-            dateElement.textContent = formatDate(bookmark.timestamp);
-
-            removeButton.innerHTML = "&#x2716;"; // Unicode for "x"
-            removeButton.className = "remove-button";
-            removeButton.addEventListener('click', function () {
-                confirmRemoveBookmark(index, bookmark.title);
-            });
-
-            bookmarkElement.appendChild(titleElement);
-            bookmarkElement.appendChild(removeButton);
-            bookmarkElement.appendChild(dateElement);
-
-            bookmarksContainer.appendChild(bookmarkElement);
-        });
-    });
-}
-
-function formatDate(timestamp) {
-    var options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
-    return new Date(timestamp).toLocaleDateString('en-US', options);
-}
-
-function confirmRemoveBookmark(index, title) {
-    var confirmation = confirm(`Are you sure you want to remove the bookmark "${title}"?`);
-    if (confirmation) {
-        removeBookmark(index);
-    }
-}
-
-function removeBookmark(index) {
-    chrome.storage.local.get({ bookmarks: [] }, function (result) {
-        var bookmarks = result.bookmarks;
-        bookmarks.splice(index, 1);
-
-        chrome.storage.local.set({ bookmarks: bookmarks }, function () {
-            console.log("Bookmark removed successfully!");
-            displayBookmarks();
-        });
-    });
-}
-
-// Optional: If you want to include a search input for filtering bookmarks
-searchInput.addEventListener('input', function () {
-    displayBookmarks();
-});
