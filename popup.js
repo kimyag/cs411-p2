@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var pageTitle = tabs[0].title;
 
         document.getElementById("urlInput").value = currentUrl;
-        document.getElementById("titleInput").placeholder = pageTitle;
+        document.getElementById("titleInput").value = pageTitle;
     });
 
     document.getElementById("addBookmarkButton").addEventListener("click", function () {

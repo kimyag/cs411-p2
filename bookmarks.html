@@ -5,13 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bookmarks</title>
   <link rel="stylesheet" type="text/css" href="bookmarks.css">
+
+
 </head>
 <body>
-  <div class="container">
-    <h1>Your Bookmarks</h1>
-    <input type="text" id="searchInput" placeholder="Search Bookmarks">
-    <div id="bookmarks-container"></div>
+  <div class="Container">
+      <h1>Your Bookmarks</h1>
+    
+    <div class="main-container">
+
+      <!-- Container for displaying bookmarks -->
+      <div class="bookmarks-container">
+        <input type="text" id="searchInput" placeholder="Search Bookmarks">
+        <div id="bookmarks-container"></div>
+      </div>
+    </div>
+
+      <!-- Container for displaying folders -->
+      <div class="folders-container">
+        <h2>Your Folders</h2>
+        <div id="folders-container" class="folders-grid"></div>
+        <button id="addFolderButton">Add Folder</button>
+      </div>
+      
+      
   </div>
+
+  <!-- Popup for adding a folder -->
+  <div id="addFolderPopup" class="popup">
+    <div class="popup-content">
+      <label for="folderName">Folder Name:</label>
+      <input type="text" id="folderName" required>
+      <button id="createFolderButton">Create Folder</button>
+    </div>
+  </div>
+    <script src="createFolderPopup.js"></script>
+  <script src="popup.js"></script>
   <script src="bookmarks.js"></script>
 </body>
 </html>

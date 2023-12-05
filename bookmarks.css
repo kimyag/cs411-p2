@@ -50,7 +50,6 @@ a {
   transition: color 0.3s; /* Add color transition */
 }
 
-/* Add a hover effect to change the text color on hover */
 a:hover {
   color: #0056b3; /* Darker blue color on hover */
 }
@@ -64,7 +63,6 @@ a:hover {
   cursor: pointer; /* Add this line to make it appear as a link */
 }
 
-/* Add this style to your existing CSS */
 .remove-button {
   cursor: pointer;
   color: #999;
@@ -74,6 +72,58 @@ a:hover {
   padding: 4; /* Remove padding */
   margin: 0; /* Remove margin */
 }
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    z-index: 1;
+}
+
+.popup-content {
+    max-width: 300px;
+    margin: auto;
+}
+
+.close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Add this style for the folders grid */
+.folders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 16px;
+}
+
+/* Add this style for the folders container */
+.folders-container {
+  margin-top: 20px;
+}
+
+/* Add this style for the folders grid */
+.folders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 16px;
+}
+
+/* Add this style for each folder */
+.folder {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+
 
 
 

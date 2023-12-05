@@ -1,15 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
-    displayBookmarks();
+    var searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            displayBookmarks(searchInput);
+        });
+    }
+    displayBookmarks(searchInput);
+    displayFoldersList();
+    document.getElementById("addFolderButton").addEventListener("click", openAddFolderPopup);
+    
 });
 
-function displayBookmarks() {
+function displayBookmarks(searchInput) {
     var bookmarksContainer = document.getElementById("bookmarks-container");
-    var searchInput = document.getElementById("searchInput");
     bookmarksContainer.innerHTML = ""; // Clear previous bookmarks
-
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks;
-        var searchTerm = searchInput.value.toLowerCase();
+        var searchTerm = ''
+        if (searchInput){
+            searchTerm = searchInput.value.toLowerCase();
+        }
 
         bookmarks.forEach(function (bookmark, index) {
             if (bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm)) {
@@ -20,7 +30,6 @@ function displayBookmarks() {
                 linkElement.href = bookmark.url;
 
 
-                linkElement.href = bookmark.url;
                 linkElement.target = "_blank"; // Open link in a new tab
                 linkElement.textContent = bookmark.title;
 
@@ -45,9 +54,6 @@ function displayBookmarks() {
     });
 }
 
-searchInput.addEventListener('input', function () {
-    displayBookmarks();
-});
 
 function formatDate(timestamp) {
     var options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
@@ -73,3 +79,32 @@ function removeBookmark(index) {
         });
     });
 }
+
+
+function displayFoldersList() {
+    chrome.storage.local.get({ folders: [] }, function (result) {
+        var folders = result.folders || [];
+        var foldersContainer = document.getElementById("folders-container");
+        foldersContainer.innerHTML = ""; // Clear previous folders
+
+        folders.forEach(function (folder) {
+            var folderElement = document.createElement("div");
+            folderElement.className = "folder";
+            folderElement.textContent = folder;
+
+            // Add an event listener if you want to do something when clicking a folder
+            folderElement.addEventListener('click', function () {
+                // Handle the click event for the folder
+                // For example, you can open a folder or do something else
+                console.log("Folder clicked:", folder);
+            });
+
+            foldersContainer.appendChild(folderElement);
+        });
+    });
+}
+function openAddFolderPopup() {
+    var addFolderPopup = document.getElementById("addFolderPopup");
+    addFolderPopup.style.display = "block";
+}
+
