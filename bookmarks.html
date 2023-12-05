@@ -3,29 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bookmarks</title>
+  <title style="color: #557C55;">Bookmarks</title>
   <link rel="stylesheet" type="text/css" href="bookmarks.css">
-
+  <script src="https://codepen.io/garetmckinley/pen/rPKgEX.js"></script>
 
 </head>
 <body>
   <div class="Container">
-      <h1>Your Bookmarks</h1>
+      <h1 style="color: #557C55;">Your Bookmarks</h1>
     
     <div class="main-container">
 
       <!-- Container for displaying bookmarks -->
       <div class="bookmarks-container">
         <input type="text" id="searchInput" placeholder="Search Bookmarks">
-        <div id="bookmarks-container"></div>
+        <div id="bookmarks-container" style="display: flex; flex-direction: column;"></div>
       </div>
     </div>
+    <br>
+    <br>
 
       <!-- Container for displaying folders -->
       <div class="folders-container">
-        <h2>Your Folders</h2>
-        <div id="folders-container" class="folders-grid"></div>
-        <button id="addFolderButton">Add Folder</button>
+        <label for="folderDropdown" style="color: #557C55">Select a folder:</label>
+        <div class="folders-container" style="color: #557C55">
+          <select id="folderDropdown"></select>
+        </div>
+        <button id="addFolderButton" style="color: #557C55">Add Folder</button>
+
       </div>
       
       

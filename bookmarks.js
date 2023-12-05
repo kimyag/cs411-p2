@@ -11,48 +11,57 @@ document.addEventListener('DOMContentLoaded', function () {
     
 });
 
-function displayBookmarks(searchInput) {
+function displayBookmarks() {
     var bookmarksContainer = document.getElementById("bookmarks-container");
+    var searchInput = document.getElementById("searchInput");
     bookmarksContainer.innerHTML = ""; // Clear previous bookmarks
+
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks;
-        var searchTerm = ''
-        if (searchInput){
-            searchTerm = searchInput.value.toLowerCase();
-        }
+        var searchTerm = searchInput.value.toLowerCase();
 
         bookmarks.forEach(function (bookmark, index) {
             if (bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm)) {
-                var bookmarkElement = document.createElement("div");
-                var linkElement = document.createElement("a");
-                var removeButton = document.createElement("button");
-                var dateElement = document.createElement("span");
-                linkElement.href = bookmark.url;
+                var bookmarkObject = {
+                    title: bookmark.title,
+                    url: bookmark.url,
+                    timestamp: bookmark.timestamp
+                };
 
-
-                linkElement.target = "_blank"; // Open link in a new tab
-                linkElement.textContent = bookmark.title;
-
-                dateElement.textContent = formatDate(bookmark.timestamp);
-
-                removeButton.innerHTML = "&#x2716;"; // Unicode for "x"
-                removeButton.className = "remove-button";
-                removeButton.addEventListener('click', function () {
-                    confirmRemoveBookmark(index, bookmark.title);
-                });
-                linkElement.style.display = "inline-block";
-                removeButton.style.display = "inline-block";
-                dateElement.style.display = "inline-block";
-
-                bookmarkElement.appendChild(linkElement);
-                bookmarkElement.appendChild(dateElement);
-                bookmarkElement.appendChild(removeButton);
-
+                var bookmarkElement = createBookmarkElement(bookmarkObject, index);
                 bookmarksContainer.appendChild(bookmarkElement);
+                var horizontalLine = document.createElement("hr");
+                bookmarksContainer.appendChild(horizontalLine);
             }
         });
     });
 }
+
+function createBookmarkElement(bookmark, index) {
+    var bookmarkElement = document.createElement("div");
+    var linkElement = document.createElement("a");
+    var removeButton = document.createElement("button");
+    var dateElement = document.createElement("span");
+
+    linkElement.href = bookmark.url;
+    linkElement.target = "_blank"; // Open link in a new tab
+    linkElement.textContent = bookmark.title;
+
+    dateElement.textContent = formatDate(bookmark.timestamp);
+
+    removeButton.innerHTML = "&#x2716;"; // Unicode for "x"
+    removeButton.className = "remove-button";
+    removeButton.addEventListener('click', function () {
+        confirmRemoveBookmark(index, bookmark.title);
+    });
+
+    bookmarkElement.appendChild(linkElement);
+    bookmarkElement.appendChild(dateElement);
+    bookmarkElement.appendChild(removeButton);
+
+    return bookmarkElement;
+}
+
 
 
 function formatDate(timestamp) {
@@ -84,25 +93,26 @@ function removeBookmark(index) {
 function displayFoldersList() {
     chrome.storage.local.get({ folders: [] }, function (result) {
         var folders = result.folders || [];
-        var foldersContainer = document.getElementById("folders-container");
-        foldersContainer.innerHTML = ""; // Clear previous folders
+        var folderDropdown = document.getElementById("folderDropdown");
+
+        // Clear previous options
+        folderDropdown.innerHTML = "";
+
+        // Create a default option
+        var defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Select a folder";
+        folderDropdown.appendChild(defaultOption);
 
         folders.forEach(function (folder) {
-            var folderElement = document.createElement("div");
-            folderElement.className = "folder";
-            folderElement.textContent = folder;
-
-            // Add an event listener if you want to do something when clicking a folder
-            folderElement.addEventListener('click', function () {
-                // Handle the click event for the folder
-                // For example, you can open a folder or do something else
-                console.log("Folder clicked:", folder);
-            });
-
-            foldersContainer.appendChild(folderElement);
+            var option = document.createElement("option");
+            option.value = folder;
+            option.textContent = folder;
+            folderDropdown.appendChild(option);
         });
     });
 }
+
 function openAddFolderPopup() {
     var addFolderPopup = document.getElementById("addFolderPopup");
     addFolderPopup.style.display = "block";
