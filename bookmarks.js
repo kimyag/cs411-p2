@@ -5,29 +5,37 @@ document.addEventListener('DOMContentLoaded', function () {
             displayBookmarks(searchInput);
         });
     }
-    displayBookmarks(searchInput);
+    var folderDropdown = document.getElementById("folderDropdown");
+        folderDropdown.addEventListener("change", function () {
+            var selectedFolder = folderDropdown.value;
+            if (selectedFolder === ''){
+                selectedFolder = 'Select a folder';
+            }
+            console.log("Selected folder:", selectedFolder);
+            displayBookmarks(selectedFolder)
+        });
+    displayBookmarks();
     displayFoldersList();
     document.getElementById("addFolderButton").addEventListener("click", openAddFolderPopup);
     
 });
 
-function displayBookmarks() {
+function displayBookmarks(folderDropdown) {
     var bookmarksContainer = document.getElementById("bookmarks-container");
     var searchInput = document.getElementById("searchInput");
-    bookmarksContainer.innerHTML = ""; // Clear previous bookmarks
+    bookmarksContainer.innerHTML = ""; 
 
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks;
         var searchTerm = searchInput.value.toLowerCase();
-
         bookmarks.forEach(function (bookmark, index) {
-            if (bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm)) {
+        if ((folderDropdown === 'Select a folder' || bookmark.folder === folderDropdown) && (bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm))) {
                 var bookmarkObject = {
                     title: bookmark.title,
                     url: bookmark.url,
-                    timestamp: bookmark.timestamp
+                    timestamp: bookmark.timestamp,
+                    folder: bookmark.folder
                 };
-
                 var bookmarkElement = createBookmarkElement(bookmarkObject, index);
                 bookmarksContainer.appendChild(bookmarkElement);
                 var horizontalLine = document.createElement("hr");

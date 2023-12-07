@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
+    displayFoldersList();
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         var currentUrl = tabs[0].url;
         var pageTitle = tabs[0].title;
+        var selectedFolder = document.getElementById("folderDropdown").value;
 
         document.getElementById("urlInput").value = currentUrl;
         document.getElementById("titleInput").value = pageTitle;
@@ -19,34 +21,63 @@ document.addEventListener('DOMContentLoaded', function () {
 function addBookmark() {
     var titleInput = document.getElementById("titleInput").value || document.getElementById("titleInput").placeholder;
     var urlInput = document.getElementById("urlInput").value;
+    var selectedFolder = document.getElementById("folderDropdown").value;
 
-    if (urlInput) {
-        chrome.storage.local.get({ bookmarks: [] }, function (result) {
+    if (urlInput && selectedFolder) {
+        chrome.storage.local.get({ folders: [], bookmarks: [] }, function (result) {
+            var folders = result.folders || [];
             var bookmarks = result.bookmarks || [];
 
-            // Check if the URL already exists in bookmarks
-            var existingBookmarkIndex = bookmarks.findIndex(function (bookmark) {
-                return bookmark.url === urlInput;
+            var existingFolder = folders.find(function (folder) {
+                return folder === selectedFolder;
             });
 
-            if (existingBookmarkIndex !== -1) {
-                // Update the title of the existing bookmark
-                bookmarks[existingBookmarkIndex].title = titleInput;
-            } else {
-                // Add a new bookmark
-                var bookmark = {
-                    title: titleInput,
-                    url: urlInput,
-                    timestamp: new Date().getTime()
-                };
-                bookmarks.push(bookmark);
+            if (!existingFolder) {
+                // Add a new folder
+                folders.push(selectedFolder);
             }
 
-            chrome.storage.local.set({ bookmarks: bookmarks }, function () {
-                console.log("Bookmark added or updated successfully!");
-                alert("Bookmark added or updated successfully!");
-                location.reload()
+            // Add a new bookmark associated with the selected folder
+            var bookmark = {
+                title: titleInput,
+                url: urlInput,
+                folder: selectedFolder,
+                timestamp: new Date().getTime()
+            };
+            bookmarks.push(bookmark);
+
+            chrome.storage.local.set({ folders: folders, bookmarks: bookmarks }, function () {
+                console.log("Bookmark added successfully!");
+                alert("Bookmark added successfully!");
+                location.reload();
             });
         });
     }
 }
+
+function displayFoldersList() {
+    chrome.storage.local.get({ folders: [] }, function (result) {
+        var folders = result.folders || [];
+        var folderDropdown = document.getElementById("folderDropdown");
+
+        // Clear previous options
+        folderDropdown.innerHTML = "";
+
+        // Create a default option
+        var defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Select a folder";
+        folderDropdown.appendChild(defaultOption);
+
+        folders.forEach(function (folder) {
+            var option = document.createElement("option");
+            option.value = folder;
+            option.textContent = folder;
+            folderDropdown.appendChild(option);
+        });
+    });
+}
+
+
+
+

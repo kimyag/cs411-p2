@@ -268,6 +268,15 @@ a.button:active {
     bottom: 0;
     z-index: 1;
 }
+.add-bookmark-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
 
 
 
