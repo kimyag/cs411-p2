@@ -25,10 +25,10 @@ function createFolder() {
             }
         });
     }
+    alert('Folder '+ folderName+' has been created')
 }
 
 function closePopup() {
     var addFolderPopup = document.getElementById("addFolderPopup");
-    addFolderPopup.style.display = "none";
 }
 

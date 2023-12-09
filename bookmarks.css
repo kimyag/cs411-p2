@@ -170,118 +170,31 @@ a.button {
   cursor: pointer;
 }
 
-a.button:active {
-  filter: brightness(75%);
+/* Add this to your existing CSS or create a new CSS file */
+.folders-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align to the leftmost */
+    margin-top: 10px;
 }
 
-/* Dropdown styles */
-.dropdown {
-  position: relative;
-  padding: 0;
-  margin-right: 1em;
-  
-  border: none;
+.folders-wrapper {
+    display: flex;
+    align-items: center;
 }
 
-.dropdown summary {
-  list-style: none;
-  list-style-type: none;
-}
-
-.dropdown > summary::-webkit-details-marker {
-  display: none;
-}
-
-.dropdown summary:focus {
-  outline: none;
-}
-
-.dropdown summary:focus a.button {
-  border: 2px solid white;
-}
-
-.dropdown summary:focus {
-  outline: none;
-}
-
-.dropdown ul {
-  position: absolute;
-  margin: 20px 0 0 0;
-  padding: 20px 0;
-  width: var(--dropdown-width);
-  left: 50%;
-  margin-left: calc((var(--dropdown-width) / 2)  * -1);
-  box-sizing: border-box;
-  z-index: 2;
-  
-  background: var(--dropdown-background);
-  border-radius: 6px;
-  list-style: none;
-}
-
-.dropdown ul li {
-  padding: 0;
-  margin: 0;
-}
-
-.dropdown ul li a:link, .dropdown ul li a:visited {
-  display: inline-block;
-  padding: 10px 0.8rem;
-  width: 100%;
-  box-sizing: border-box;
-  
-  color: var(--dropdown-color);
-  text-decoration: none;
-}
-
-.dropdown ul li a:hover {
-  background-color: var(--dropdown-highlight);
-  color: var(--dropdown-background);
-}
-
-/* Dropdown triangle */
-.dropdown ul::before {
-  content: ' ';
-  position: absolute;
-  width: 0;
-  height: 0;
-  top: -10px;
-  left: 50%;
-  margin-left: -10px;
-  border-style: solid;
-  border-width: 0 10px 10px 10px;
-  border-color: transparent transparent var(--dropdown-background) transparent;
-}
-
-
-.dropdown > summary::before {
-  display: none;
-}
-
-.dropdown[open] > summary::before {
-    content: ' ';
-    display: block;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1;
-}
-.add-bookmark-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
+.folder {
+    border: 1px solid #557C55;
+    border-radius: 5px;
     padding: 5px 10px;
-    font-size: 14px;
+    margin-right: 5px;
     cursor: pointer;
 }
 
-
-
-
-
-
-
-
-
+#removeFolderButton {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+}

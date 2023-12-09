@@ -3,18 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title style="color: #557C55;">Bookmarks</title>
-  <link rel="stylesheet" type="text/css" href="bookmarks.css">
-  <script src="https://codepen.io/garetmckinley/pen/rPKgEX.js"></script>
+  <title>Bookmarks</title>
+  <style>
 
+    .folder-box {
+        display: inline-block;
+        padding: 10px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .remove-folder-button {
+        margin-left: 5px;
+        background-color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    .folder-box:hover {
+        background-color: #f5f5f5;
+    }
+  </style>
+  <script src="https://codepen.io/garetmckinley/pen/rPKgEX.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var folderBoxes = document.querySelectorAll('.folder-box');
+        folderBoxes.forEach(function (folderBox) {
+            folderBox.style.backgroundColor = getRandomColor();
+        });
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    });
+  </script>
 </head>
 <body>
   <div class="Container">
       <h1 style="color: #557C55;">Your Bookmarks</h1>
     
     <div class="main-container">
-
-      <!-- Container for displaying bookmarks -->
       <div class="bookmarks-container">
         <input type="text" id="searchInput" placeholder="Search Bookmarks">
         <div id="bookmarks-container" style="display: flex; flex-direction: column;"></div>
@@ -23,20 +58,13 @@
     <br>
     <br>
 
-      <!-- Container for displaying folders -->
-      <div class="folders-container">
-        <label for="folderDropdown" style="color: #557C55">Select a folder:</label>
-        <div class="folders-container" style="color: #557C55">
-          <select id="folderDropdown"></select>
+    <div class="folders-container">
+        <div class="folders-wrapper">
+            <div class="folders-list" id="foldersList"></div>
         </div>
-        <button id="addFolderButton" style="color: #557C55">Add Folder</button>
-
-      </div>
-      
-      
+    </div>
   </div>
 
-  <!-- Popup for adding a folder -->
   <div id="addFolderPopup" class="popup">
     <div class="popup-content">
       <label for="folderName">Folder Name:</label>
@@ -44,7 +72,7 @@
       <button id="createFolderButton">Create Folder</button>
     </div>
   </div>
-    <script src="createFolderPopup.js"></script>
+  <script src="createFolderPopup.js"></script>
   <script src="popup.js"></script>
   <script src="bookmarks.js"></script>
 </body>
