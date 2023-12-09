@@ -1,0 +1,200 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+  max-width: 600px;
+  width: 80%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#bookmarks-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+a {
+  display: block;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-decoration: underline; /* Change text decoration to underline */
+  color: #007bff; /* Blue color */
+  background-color: transparent; /* Set background color to transparent */
+  border: none; /* Remove border */
+  border-radius: 0; /* Remove border-radius */
+  transition: color 0.3s; /* Add color transition */
+}
+
+a:hover {
+  color: #0056b3; /* Darker blue color on hover */
+}
+
+
+
+.bookmark-title {
+  flex: 1; /* Takes up remaining space */
+  text-decoration: none;
+  color: #007bff; /* Blue color */
+  cursor: pointer; /* Add this line to make it appear as a link */
+}
+
+.remove-button {
+  cursor: pointer;
+  color: #999;
+  font-size: 16px;
+  background: none; /* Remove background color */
+  border: none; /* Remove border */
+  padding: 4; /* Remove padding */
+  margin: 0; /* Remove margin */
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    z-index: 1;
+}
+
+.popup-content {
+    max-width: 300px;
+    margin: auto;
+}
+
+.close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+
+/* Add this style for the main container */
+.main-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Add this style for the folders container */
+.folders-container {
+  flex-basis: 30%; /* Adjust the width as needed */
+  margin-right: 20px; /* Add margin for separation */
+}
+
+/* Add this style for the bookmarks container */
+.bookmarks-container {
+  flex-basis: 65%; /* Adjust the width as needed */
+}
+
+/* Add this style for the folders grid */
+.folders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 16px;
+}
+
+/* Add this style for each folder */
+.folder {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+.folders-container {
+  display: flex;
+  align-items: center;
+}
+
+label {
+  margin-right: 10px;
+}
+
+:root {
+  --button-background: dodgerblue;
+  --button-color: white;
+  
+  --dropdown-highlight: dodgerblue;
+  --dropdown-width: 160px;
+  --dropdown-background: white;
+  --dropdown-color: black;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #F2FFE9
+}
+
+a.button {
+  /* Frame */
+  display: inline-block;
+  padding: 20px 28px;
+  border-radius: 50px;
+  box-sizing: border-box;
+  
+  /* Style */
+  border: none;
+  background: var(--button-background);
+  color: var(--button-color);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Add this to your existing CSS or create a new CSS file */
+.folders-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align to the leftmost */
+    margin-top: 10px;
+}
+
+.folders-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.folder {
+    border: 1px solid #557C55;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+#removeFolderButton {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+}

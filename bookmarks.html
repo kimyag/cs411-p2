@@ -1,13 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bookmarks</title>
-  <link rel="stylesheet" type="text/css" href="popup.css">
+  <style>
+
+    .folder-box {
+        display: inline-block;
+        padding: 10px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .remove-folder-button {
+        margin-left: 5px;
+        background-color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    .folder-box:hover {
+        background-color: #f5f5f5;
+    }
+  </style>
+  <script src="https://codepen.io/garetmckinley/pen/rPKgEX.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var folderBoxes = document.querySelectorAll('.folder-box');
+        folderBoxes.forEach(function (folderBox) {
+            folderBox.style.backgroundColor = getRandomColor();
+        });
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    });
+  </script>
 </head>
 <body>
-  <h1>Your Bookmarks</h1>
-  <input type="text" id="searchInput" placeholder="Search Bookmarks">
-  <div id="bookmarks-container"></div>
+  <div class="Container">
+      <h1 style="color: #557C55;">Your Bookmarks</h1>
+    
+    <div class="main-container">
+      <div class="bookmarks-container">
+        <input type="text" id="searchInput" placeholder="Search Bookmarks">
+        <div id="bookmarks-container" style="display: flex; flex-direction: column;"></div>
+      </div>
+    </div>
+    <br>
+    <br>
+
+    <div class="folders-container">
+        <div class="folders-wrapper">
+            <div class="folders-list" id="foldersList"></div>
+        </div>
+    </div>
+  </div>
+
+  <div id="addFolderPopup" class="popup">
+    <div class="popup-content">
+      <label for="folderName">Folder Name:</label>
+      <input type="text" id="folderName" required>
+      <button id="createFolderButton">Create Folder</button>
+    </div>
+  </div>
+  <script src="createFolderPopup.js"></script>
+  <script src="popup.js"></script>
   <script src="bookmarks.js"></script>
 </body>
 </html>

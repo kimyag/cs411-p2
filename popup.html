@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Bookmark Extension</title>
   <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
+
 <body>
-  <button id="addBookmarkButton">Add Bookmark</button>
-  <button id="viewBookmarksButton">View Bookmarks</button>
+  <h1 style="color: #557C55;">Bookmark Extension</h1>
+  <input type="text" id="titleInput" placeholder="Enter Title">
+  <input type="text" id="urlInput" placeholder="Enter URL" readonly>
+  <div class="folders-container">
+    <label for="folderDropdown" style="color: #557C55">Select a folder:</label>
+    <div class="folders-container" style="color: #557C55">
+      <select id="folderDropdown"></select>
+    </div>
+  </div>
+  <button id="addBookmarkButton">Done</button>
+  <button id="goToBookmarksButton">Go to Bookmarks</button>
   <script src="popup.js"></script>
+
 </body>
+
 </html>
