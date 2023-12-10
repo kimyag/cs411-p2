@@ -26,6 +26,15 @@ function createFolder() {
         });
     }
     alert('Folder '+ folderName+' has been created')
+    chrome.bookmarks.create(
+        {
+          parentId: '1',
+          title: folderName,
+          url: ""
+        },
+        (newBookmark) => {
+        }
+    );
 }
 
 function closePopup() {
