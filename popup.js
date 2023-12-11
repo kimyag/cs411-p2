@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     displayFoldersList();
     var selectedFolder;
+    
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         var currentUrl = tabs[0].url;
         var pageTitle = tabs[0].title;
@@ -13,9 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     document.getElementById("addBookmarkButton").addEventListener("click", function () {
-        addBookmark();        
-        //chromeAddBookmark();
-        
+        addBookmark();                
     });
 
     document.getElementById("goToBookmarksButton").addEventListener("click", function () {
@@ -87,47 +86,11 @@ function addBookmark() {
             };
             bookmarks.push(bookmark);
 
-            if( selectedFolder !== "all" ) {
-                chrome.storage.local.get({ folders: [] }, function (result) {
-                    var folders = result.folders || [];
-                    console.log("hagi1");
-                    chrome.bookmarks.getTree((tree) => {
-                        console.log("hagi2");
-                        const rootChildren = tree[0].children; // Accessing the top-level bookmark folders
-                        var bookmarkTabFolders = rootChildren[0].children;
-                        for (const bookmarkFolder of bookmarkTabFolders) {
-                            if (bookmarkFolder.title === selectedFolder && bookmarkFolder.children) {
-                                chrome.bookmarks.create(
-                                    {
-                                    parentId: bookmarkFolder.id,
-                                    title: titleInput,
-                                    url: urlInput
-                                    },
-                                    (newBookmark) => {
-                                    console.log('Bookmark added:', newBookmark);
-                                    //alert('Bookmark added successfully!');
-                                    //location.reload(); // Refresh the popup
-                                    }
-                                );
-                                break; // Exit the loop after removing the folder
-                            }
-                        }
-                    });
+            addBookmarkChrome(
+                {folder: selectedFolder,
+                 title: titleInput,
+                 url: urlInput   
                 });
-            } else {
-                chrome.bookmarks.create(
-                    {
-                      parentId: '1',
-                      title: titleInput,
-                      url: urlInput
-                    },
-                    (newBookmark) => {
-                      console.log('Bookmark added:', newBookmark);
-                      alert('Bookmark added successfully!');
-                      //location.reload(); // Refresh the popup
-                    }
-                );
-            }
 
             chrome.storage.local.set({ folders: folders, bookmarks: bookmarks }, function () {
                 console.log("Bookmark added successfully!");
@@ -135,6 +98,52 @@ function addBookmark() {
                 // You may choose to perform additional actions here if needed.
             });
         });
+    }
+}
+
+function addBookmarkChrome(object) {
+    if( object.folder !== "all" ) {
+        /* THIS IS NOW UNNECESSARY !!!
+        chrome.storage.local.get({ folders: [] }, function (result) {
+            var folders = result.folders || [];
+            console.log("hagi1");
+            // chrome.bookmarks.create was here
+        });*/
+
+        chrome.bookmarks.getTree((tree) => {
+            const rootChildren = tree[0].children; // Accessing the top-level bookmark folders
+            var bookmarkTabFolders = rootChildren[0].children;
+            for (const bookmarkFolder of bookmarkTabFolders) {
+                if (bookmarkFolder.title === object.folder && bookmarkFolder.children) {
+                    chrome.bookmarks.create(
+                        {
+                        parentId: bookmarkFolder.id,
+                        title: object.titleInput,
+                        url: object.urlInput
+                        },
+                        (newBookmark) => {
+                        console.log('Bookmark added:', newBookmark);
+                        //alert('Bookmark added successfully!');
+                        //location.reload(); // Refresh the popup
+                        }
+                    );
+                    break; // Exit the loop after removing the folder
+                }
+            }
+        });
+    } else {
+        chrome.bookmarks.create(
+            {
+              parentId: '1',
+              title: object.title,
+              url: object.url
+            },
+            (newBookmark) => {
+              console.log('Bookmark added:', newBookmark);
+              alert('Bookmark added successfully!');
+              //location.reload(); // Refresh the popup
+            }
+        );
     }
 }
 

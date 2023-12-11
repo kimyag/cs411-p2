@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {    
+
     var searchInput = document.getElementById("searchInput");
     var foldersList = document.getElementById("foldersList");
 
@@ -7,9 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
             displayBookmarks(searchInput.value); // Pass searchInput value
         });
     }
-
-
-
 
     displayBookmarks();
     displayFoldersList();
@@ -38,6 +36,7 @@ function displayBookmarks(folderDropdown) {
 
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks;
+        console.table(bookmarks[0]);
         var searchTerm = searchInput.value.toLowerCase();
         bookmarks.forEach(function (bookmark, index) {
             if ((bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm))) {
@@ -120,9 +119,6 @@ function displayBookmarksForFolder(folder) {
     });
 }
 
-
-
-
 function createBookmarkElement(/*bookmark, index, folder*/ object) {
     var bookmarkElement = document.createElement("div");
     var linkElement = document.createElement("a");
@@ -157,8 +153,6 @@ function formatDate(timestamp) {
 function confirmRemoveBookmark(index, title) {
     var confirmation = confirm(`Are you sure you want to remove the bookmark "${title}"?`);
     if (confirmation) {
-        alert("sie bookmarkk");
-        console.log("sie amciiik")
         console.log(index)
         removeBookmark({ index: index, folder: "all" });
         location.reload();
@@ -168,14 +162,13 @@ function confirmRemoveBookmark(index, title) {
 function confirmRemoveBookmarkFromFolder(index, title, folder) {
     var confirmation = confirm(`Are you sure you want to remove the bookmark "${title}" from the folder "${folder}"? index: "${index}"`);
     if (confirmation) {
-        alert("sie folder");
         removeBookmark({ index: index, folder: folder });
         location.reload();
     }
 }
 
 function removeBookmark(object) {
-    console.log("sie");
+    /* console.log("sie");
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks || [];
 
@@ -213,8 +206,8 @@ function removeBookmark(object) {
                 displayBookmarks();
             });
         }
-    });
-    /* // Eski remove func: bookmarks tab'i kaale almadan listeden siler
+    });*/
+    // Eski remove func: bookmarks tab'i kaale almadan listeden siler
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks || [];
         bookmarks.splice(object.index, 1);
@@ -223,9 +216,8 @@ function removeBookmark(object) {
             console.log("Bookmark removed successfully!");
             displayBookmarks();
         });
-    });*/
+    });
 }
-
 
 function openAddFolderPopup() {
     var addFolderPopup = document.getElementById("addFolderPopup");
