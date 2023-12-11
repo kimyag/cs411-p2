@@ -1,22 +1,28 @@
 document.addEventListener('DOMContentLoaded', function () {
     displayFoldersList();
+    var selectedFolder;
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         var currentUrl = tabs[0].url;
         var pageTitle = tabs[0].title;
-        var selectedFolder = document.getElementById("folderDropdown").value;
+        selectedFolder = document.getElementById("folderDropdown").value;
+        
 
         document.getElementById("urlInput").value = currentUrl;
         document.getElementById("titleInput").value = pageTitle;
     });
+    
 
     document.getElementById("addBookmarkButton").addEventListener("click", function () {
-        addBookmark();
+        addBookmark();        
+        //chromeAddBookmark();
+        
     });
 
     document.getElementById("goToBookmarksButton").addEventListener("click", function () {
         chrome.tabs.create({ url: chrome.runtime.getURL('bookmarks.html') });
     });
 });
+
 function displayFoldersList() {
     chrome.storage.local.get({ folders: [] }, function (result) {
         var folders = result.folders || [];
@@ -32,7 +38,7 @@ function displayFoldersList() {
 
         // Create a default option
         var defaultOption = document.createElement("option");
-        defaultOption.value = "";
+        defaultOption.value = "all";
         defaultOption.textContent = "Select a folder";
         folderDropdown.appendChild(defaultOption);
 
@@ -42,10 +48,10 @@ function displayFoldersList() {
             option.textContent = folder;
             folderDropdown.appendChild(option);
         });
+
+        //alert("displayFoldersList folderDropdown: " + folderDropdown.value);
     });
 }
-
-
 
 function addBookmark() {
     var titleInput = document.getElementById("titleInput").value || document.getElementById("titleInput").placeholder;
@@ -56,6 +62,7 @@ function addBookmark() {
         chrome.storage.local.get({ folders: [], bookmarks: [] }, function (result) {
             var folders = result.folders || [];
             var bookmarks = result.bookmarks || [];
+            var foldersOfBookmark = ["all"];
 
             var existingFolder = folders.find(function (folder) {
                 return folder === selectedFolder;
@@ -68,14 +75,59 @@ function addBookmark() {
                 updateFolderDropdown(folders);
             }
 
+            if( selectedFolder !== "all" ) foldersOfBookmark.push(selectedFolder);
+
             // Add a new bookmark associated with the selected folder
             var bookmark = {
+                id: bookmarks.length,
                 title: titleInput,
                 url: urlInput,
-                folder: selectedFolder,
+                folder: foldersOfBookmark,
                 timestamp: new Date().getTime()
             };
             bookmarks.push(bookmark);
+
+            if( selectedFolder !== "all" ) {
+                chrome.storage.local.get({ folders: [] }, function (result) {
+                    var folders = result.folders || [];
+                    console.log("hagi1");
+                    chrome.bookmarks.getTree((tree) => {
+                        console.log("hagi2");
+                        const rootChildren = tree[0].children; // Accessing the top-level bookmark folders
+                        var bookmarkTabFolders = rootChildren[0].children;
+                        for (const bookmarkFolder of bookmarkTabFolders) {
+                            if (bookmarkFolder.title === selectedFolder && bookmarkFolder.children) {
+                                chrome.bookmarks.create(
+                                    {
+                                    parentId: bookmarkFolder.id,
+                                    title: titleInput,
+                                    url: urlInput
+                                    },
+                                    (newBookmark) => {
+                                    console.log('Bookmark added:', newBookmark);
+                                    //alert('Bookmark added successfully!');
+                                    //location.reload(); // Refresh the popup
+                                    }
+                                );
+                                break; // Exit the loop after removing the folder
+                            }
+                        }
+                    });
+                });
+            } else {
+                chrome.bookmarks.create(
+                    {
+                      parentId: '1',
+                      title: titleInput,
+                      url: urlInput
+                    },
+                    (newBookmark) => {
+                      console.log('Bookmark added:', newBookmark);
+                      alert('Bookmark added successfully!');
+                      //location.reload(); // Refresh the popup
+                    }
+                );
+            }
 
             chrome.storage.local.set({ folders: folders, bookmarks: bookmarks }, function () {
                 console.log("Bookmark added successfully!");
@@ -94,7 +146,7 @@ function updateFolderDropdown(folders) {
 
     // Create a default option
     var defaultOption = document.createElement("option");
-    defaultOption.value = "";
+    defaultOption.value = "all";
     defaultOption.textContent = "Select a folder";
     folderDropdown.appendChild(defaultOption);
 
