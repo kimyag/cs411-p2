@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-
 function createFolder() {
     var folderNameInput = document.getElementById("folderName");
     var folderName = folderNameInput.value.trim();
