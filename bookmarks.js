@@ -1,15 +1,18 @@
-document.addEventListener('DOMContentLoaded', function () {    
+document.addEventListener('DOMContentLoaded', function () {
+
+    var username = (new URLSearchParams(window.location.search)).get('user');
+    //alert('Logged-in username: '+ username);
 
     var searchInput = document.getElementById("searchInput");
-    var foldersList = document.getElementById("foldersList");
+    //var foldersList = document.getElementById("foldersList");
 
     if (searchInput) {
         searchInput.addEventListener('input', function () {
-            displayBookmarks(searchInput.value); // Pass searchInput value
+            displayBookmarks(username); // Pass searchInput value
         });
     }
 
-    displayBookmarks();
+    displayBookmarks(username);
     displayFoldersList();
 
     document.getElementById("addFolderButton").addEventListener("click", openAddFolderPopup);
@@ -17,36 +20,42 @@ document.addEventListener('DOMContentLoaded', function () {
     removeFolderButton.addEventListener("click", function () {
         var folderDropdown = document.getElementById("folderDropdown");
         var selectedFolder = folderDropdown.value;
+        console.table(selectedFolder);
 
         if (selectedFolder !== 'Select a folder') {
             // Remove the selected folder from storage
-            removeFolder(selectedFolder);
+            removeFolder(selectedFolder, username);
 
             // Update the bookmarks
             refreshFolderList(); // Call refreshFolderList before displaying bookmarks
-            displayBookmarks(searchInput.value, selectedFolder);
+            //displayBookmarks(searchInput.value, selectedFolder.title);
         }
     });
 });
 
-function displayBookmarks(folderDropdown) {
+function displayBookmarks(username) {
     var bookmarksContainer = document.getElementById("bookmarks-container");
     var searchInput = document.getElementById("searchInput");
     bookmarksContainer.innerHTML = "";
 
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks;
-        console.table(bookmarks[0]);
         var searchTerm = searchInput.value.toLowerCase();
-        bookmarks.forEach(function (bookmark, index) {
-            if ((bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm))) {
-                /*var bookmarkObject = {
-                    title: bookmark.title,
-                    url: bookmark.url,
-                    timestamp: bookmark.timestamp,
-                    folder: bookmark.folder
-                };*/
-                //alert(`id: "${bookmark.id}", folders: "${bookmark.folder}"`);
+
+        var filteredBookmarks = bookmarks.filter(function (bookmark) {
+            return bookmark.created_by === username
+        });
+
+        filteredBookmarks.forEach(function (bookmark, index) {
+            if (searchInput !== undefined) {
+                if (bookmark.title.toLowerCase().includes(searchTerm) || bookmark.url.toLowerCase().includes(searchTerm)) {
+                    var bookmarkElement = createBookmarkElement({ bookmark: bookmark, index: index });
+                    bookmarksContainer.appendChild(bookmarkElement);
+                    var horizontalLine = document.createElement("hr");
+                    bookmarksContainer.appendChild(horizontalLine);
+                }
+
+            } else {
                 var bookmarkElement = createBookmarkElement({ bookmark: bookmark, index: index });
                 bookmarksContainer.appendChild(bookmarkElement);
                 var horizontalLine = document.createElement("hr");
@@ -71,7 +80,7 @@ function displayFoldersList() {
         folders.forEach(function (folder) {
             var folderBox = document.createElement("div");
             folderBox.className = "folder-box";
-            folderBox.textContent = folder;
+            folderBox.textContent = folder.name;
 
             // Add a click event listener to handle folder click
             folderBox.addEventListener('click', function () {
@@ -86,7 +95,7 @@ function displayFoldersList() {
             removeButton.addEventListener('click', function (event) {
                 event.stopPropagation(); // Prevent folder click event from firing
                 removeFolder(folder);
-                refreshFolderList(); // Update the displayed folders
+                //refreshFolderList(); // Update the displayed folders
             });
 
             folderBox.appendChild(removeButton);
@@ -95,7 +104,7 @@ function displayFoldersList() {
     });
 }
 
-function displayBookmarksForFolder(folder) {
+function displayBookmarksForFolder(folder, username) {
     // Fetch bookmarks associated with the clicked folder
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks || [];
@@ -103,7 +112,7 @@ function displayBookmarksForFolder(folder) {
         // Filter bookmarks for the clicked folder
         var folderBookmarks = bookmarks.filter(function (bookmark) {
             //return bookmark.folder === folder;
-            return bookmark.folder.includes(folder);
+            return bookmark.folder.includes(folder) && bookmark.created_by === username;
         });
 
         // Display the bookmarks in the UI (modify this part based on your UI structure)
@@ -119,7 +128,7 @@ function displayBookmarksForFolder(folder) {
     });
 }
 
-function createBookmarkElement(/*bookmark, index, folder*/ object) {
+function createBookmarkElement(object) {
     var bookmarkElement = document.createElement("div");
     var linkElement = document.createElement("a");
     var removeButton = document.createElement("button");
@@ -168,7 +177,7 @@ function confirmRemoveBookmarkFromFolder(index, title, folder) {
 }
 
 function removeBookmark(object) {
-    /* console.log("sie");
+    console.log("sie");
     chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks || [];
 
@@ -178,7 +187,7 @@ function removeBookmark(object) {
                 for (const result of results) {
                     console.log(result)
                     if (result.url === bookmarks[object.index].url) {
-                        
+
                         chrome.bookmarks.remove(result.id, () => {
                             console.table(bookmarks);
                             bookmarks.splice(object.index, 1); // Update the array after bookmark removal
@@ -206,9 +215,9 @@ function removeBookmark(object) {
                 displayBookmarks();
             });
         }
-    });*/
+    });
     // Eski remove func: bookmarks tab'i kaale almadan listeden siler
-    chrome.storage.local.get({ bookmarks: [] }, function (result) {
+    /* chrome.storage.local.get({ bookmarks: [] }, function (result) {
         var bookmarks = result.bookmarks || [];
         bookmarks.splice(object.index, 1);
 
@@ -216,7 +225,7 @@ function removeBookmark(object) {
             console.log("Bookmark removed successfully!");
             displayBookmarks();
         });
-    });
+    });*/
 }
 
 function openAddFolderPopup() {
@@ -224,19 +233,22 @@ function openAddFolderPopup() {
     addFolderPopup.style.display = "block";
 }
 
-function removeFolder(folderToRemove) {
+function removeFolder(folderToRemove, username) {
     chrome.storage.local.get({ folders: [] }, function (result) {
         var folders = result.folders || [];
-        console.log("hagi1");
+        console.log(folderToRemove);
         chrome.bookmarks.getTree((tree) => {
             console.log("hagi2");
             const rootChildren = tree[0].children; // Accessing the top-level bookmark folders
             var bookmarkTabFolders = rootChildren[0].children;
             for (const bookmarkFolder of bookmarkTabFolders) {
-                if (bookmarkFolder.title === folderToRemove && bookmarkFolder.children) {
+                console.log(bookmarkFolder);
+                if (bookmarkFolder.title === folderToRemove.name && bookmarkFolder.children) {
+                    console.log("hi");
                     chrome.bookmarks.removeTree(bookmarkFolder.id, () => {
-                        var updatedFolders = folders.filter(folder => folder !== folderToRemove);
+                        var updatedFolders = folders.filter(folder => (folder.name !== folderToRemove.name && folder.created_by === username));
                         chrome.storage.local.set({ folders: updatedFolders }, function () {
+                            alert(`Folder ${folderToRemove.name} has been removed`);
                             location.reload();
                         });
                     });
@@ -245,12 +257,22 @@ function removeFolder(folderToRemove) {
             }
         });
     });
-    alert(`Folder ${folderToRemove} has been removed`);
+    
 }
 
 
-
-
-
-
+/*
+// To remove the folder only from the storage if the folder does not exist on bookmarks tab
+function removeFolder(folderToRemove, username) {
+    chrome.storage.local.get({ folders: [] }, function (result) {
+        var folders = result.folders || [];
+        console.log("hagi1");
+        var updatedFolders = folders.filter(folder => (folder.name !== folderToRemove.name && folder.created_by === username));
+        chrome.storage.local.set({ folders: updatedFolders }, function () {
+            location.reload();
+        });
+    });
+    alert(`Folder ${folderToRemove.name} has been removed`);
+}
+*/
 

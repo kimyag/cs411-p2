@@ -8,17 +8,25 @@
 
 <body>
   <h1 style="color: #557C55;">Bookmark Extension</h1>
-  <input type="text" id="titleInput" placeholder="Enter Title">
-  <input type="text" id="urlInput" placeholder="Enter URL" readonly>
-  <div class="folders-container">
-    <label for="folderDropdown" style="color: #557C55">Select a folder:</label>
-    <div class="folders-container" style="color: #557C55">
-      <select id="folderDropdown" value="all"></select>
-    </div>
+  <div id="login">
+    <h2 style="color: #557C55;">Enter your username & password</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="text" id="password" placeholder="Password">
+    <button id="loginButton">Enter</button>
   </div>
-  <button id="addBookmarkButton">Done</button>
-  <button id="goToBookmarksButton">Go to Bookmarks</button>
-  <ul id="bookmarkList"></ul>
+  <div id="bookmarks" hidden>
+    <input type="text" id="titleInput" placeholder="Enter Title">
+    <input type="text" id="urlInput" placeholder="Enter URL" readonly>
+    <div class="folders-container">
+      <label for="folderDropdown" style="color: #557C55">Select a folder:</label>
+      <div class="folders-container" style="color: #557C55">
+        <select id="folderDropdown" value="all"></select>
+      </div>
+    </div>
+    <button id="addBookmarkButton">Done</button>
+    <button id="goToBookmarksButton">Go to Bookmarks</button>
+    <button id="logoutButton">Log Out</button>
+  </div>
   <script src="popup.js"></script>
 
 </body>
