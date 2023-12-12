@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
+    chrome.storage.local.get({loggedin: false}, (res) => {
+        alert(res.loggedin);
+    });
+    var username;
+    
+    document.getElementById("loginButton").addEventListener("click", function () {
+        username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        checkUserExists(username, password, () => {showBookmarkPopup();});
+    });
+
+
+    showBookmarkPopup();
+
     displayFoldersList();
     var selectedFolder;
     
@@ -14,13 +28,21 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     document.getElementById("addBookmarkButton").addEventListener("click", function () {
-        addBookmark();                
+        addBookmark(username);                
     });
 
     document.getElementById("goToBookmarksButton").addEventListener("click", function () {
-        chrome.tabs.create({ url: chrome.runtime.getURL('bookmarks.html') });
+        var url = chrome.runtime.getURL('bookmarks.html') + '?user=' + encodeURIComponent(username);
+        chrome.tabs.create({ url: url });
     });
+
+    document.getElementById("logoutButton").addEventListener("click", function () {
+        chrome.storage.local.set({loggedin: false}, () => {showBookmarkPopup();});                
+    });
+
+    
 });
+
 
 function displayFoldersList() {
     chrome.storage.local.get({ folders: [] }, function (result) {
@@ -52,7 +74,7 @@ function displayFoldersList() {
     });
 }
 
-function addBookmark() {
+function addBookmark(username) {
     var titleInput = document.getElementById("titleInput").value || document.getElementById("titleInput").placeholder;
     var urlInput = document.getElementById("urlInput").value;
     var selectedFolder = document.getElementById("folderDropdown").value;
@@ -82,7 +104,8 @@ function addBookmark() {
                 title: titleInput,
                 url: urlInput,
                 folder: foldersOfBookmark,
-                timestamp: new Date().getTime()
+                timestamp: new Date().getTime(),
+                created_by: username
             };
             bookmarks.push(bookmark);
 
@@ -165,4 +188,41 @@ function updateFolderDropdown(folders) {
         option.textContent = folder;
         folderDropdown.appendChild(option);
     });
+}
+
+function checkUserExists(user, pass, callback) {
+    //alert("in checkUserExists")
+    chrome.storage.local.get({ users: [], loggedin: false }, function (res) {
+        let users = res.users;
+        var loggedin = res.loggedin;
+        let userExists = users.some(function (o) {
+            //alert("user found")
+            return o.name === user && o.pass === pass;
+        });
+
+        loggedin = userExists;
+        //alert("checkUserExists loggedin: "+loggedin)
+        chrome.storage.local.set({ loggedin: loggedin }, function () {
+            callback(userExists);
+        });
+    });
+}
+
+function showBookmarkPopup() {
+    //alert("in showBookmarkPopup");
+    chrome.storage.local.get({loggedin: false}, (res) => {
+        let loggedin = res.loggedin;
+        //alert("showBookmarkPopup loggedin: "+loggedin);
+        if (loggedin) {
+            document.getElementById("login").hidden = true;
+            document.getElementById("bookmarks").hidden = false;
+            //alert("divs are updated");
+        } else {
+            document.getElementById("login").hidden = false;
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("bookmarks").hidden = true;
+        }
+    });
+    
 }
