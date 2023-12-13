@@ -1,50 +1,75 @@
+var user;
+
+//chrome.storage.local.set({bookmarks: [], folders: []});
+
 document.addEventListener('DOMContentLoaded', function () {
-    chrome.storage.local.get({loggedin: false}, (res) => {
-        alert(res.loggedin);
-    });
-    var username;
     
     document.getElementById("loginButton").addEventListener("click", function () {
-        username = document.getElementById("username").value;
+        var usern = document.getElementById("username").value;
         var password = document.getElementById("password").value;
-        checkUserExists(username, password, () => {showBookmarkPopup();});
-    });
+        checkUserExists(usern, password, () => {showBookmarkPopup(function(loggedin) {bookmarksTabOnLogin(loggedin); location.reload();} )});       
+    });    
 
+    showBookmarkPopup(function (loggedin) {
+        // Now you can use the 'loggedin' value here
+        user = loggedin;
+        // Perform other actions that depend on the user being defined
+        displayFoldersList(user);
 
-    showBookmarkPopup();
-
-    displayFoldersList();
-    var selectedFolder;
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            var currentUrl = tabs[0].url;
+            var pageTitle = tabs[0].title;
+            selectedFolder = document.getElementById("folderDropdown").value;
+            
     
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        var currentUrl = tabs[0].url;
-        var pageTitle = tabs[0].title;
-        selectedFolder = document.getElementById("folderDropdown").value;
+            document.getElementById("urlInput").value = currentUrl;
+            document.getElementById("titleInput").value = pageTitle;
+        });
         
-
-        document.getElementById("urlInput").value = currentUrl;
-        document.getElementById("titleInput").value = pageTitle;
-    });
     
+        document.getElementById("addBookmarkButton").addEventListener("click", function () {
+            addBookmark(user);
+            location.reload();                
+        });
+    
+        document.getElementById("goToBookmarksButton").addEventListener("click", function () {
+            var url = chrome.runtime.getURL('bookmarks.html') + '?user=' + encodeURIComponent(user);
+            chrome.tabs.create({ url: url }, function (tab) {
+                // Store the created tab ID in a variable
+                var bookmarksTabId = tab.id;
+                
+                // Add the tab ID to storage or a global variable for later reference
+                chrome.storage.local.set({ bookmarksTabId: bookmarksTabId });
+            });
+        });
+        
+        document.getElementById("logoutButton").addEventListener("click", function () {
+            // Retrieve the stored bookmarksTabId from storage
+            chrome.storage.local.get({ bookmarksTabId: null }, function (result) {
+                var bookmarksTabId = result.bookmarksTabId;
+                
+                // Check if a bookmarks tab is open
+                if (bookmarksTabId !== null)
+                    // Close the bookmarks tab
+                    chrome.tabs.remove(bookmarksTabId, function () {
+                        // Clear the stored bookmarksTabId
+                        chrome.storage.local.remove('bookmarksTabId');
+                    });
+                    // If no bookmarks tab is open, simply proceed to logout
 
-    document.getElementById("addBookmarkButton").addEventListener("click", function () {
-        addBookmark(username);                
-    });
+                chrome.storage.local.set({ loggedin: "" }, function () {
+                    showBookmarkPopup();
+                });
+                
+            });
+        });
 
-    document.getElementById("goToBookmarksButton").addEventListener("click", function () {
-        var url = chrome.runtime.getURL('bookmarks.html') + '?user=' + encodeURIComponent(username);
-        chrome.tabs.create({ url: url });
-    });
-
-    document.getElementById("logoutButton").addEventListener("click", function () {
-        chrome.storage.local.set({loggedin: false}, () => {showBookmarkPopup();});                
     });
 
     
 });
 
-
-function displayFoldersList() {
+function displayFoldersList(username) {
     chrome.storage.local.get({ folders: [] }, function (result) {
         var folders = result.folders || [];
         var folderDropdown = document.getElementById("folderDropdown");
@@ -58,15 +83,20 @@ function displayFoldersList() {
         folderDropdown.innerHTML = "";
 
         // Create a default option
-        var defaultOption = document.createElement("option");
+        const defaultOption = document.createElement("option");
         defaultOption.value = "all";
         defaultOption.textContent = "Select a folder";
         folderDropdown.appendChild(defaultOption);
 
-        folders.forEach(function (folder) {
+        var users_folders = folders.filter(f => f.created_by === username );
+
+        //alert(username);
+
+        users_folders.forEach((folder) => {
+            //alert(folder.name);
             var option = document.createElement("option");
-            option.value = folder;
-            option.textContent = folder;
+            option.value = folder.name;
+            option.textContent = folder.name;
             folderDropdown.appendChild(option);
         });
 
@@ -85,17 +115,6 @@ function addBookmark(username) {
             var bookmarks = result.bookmarks || [];
             var foldersOfBookmark = ["all"];
 
-            var existingFolder = folders.find(function (folder) {
-                return folder === selectedFolder;
-            });
-
-            if (!existingFolder) {
-                // Add a new folder
-                folders.push(selectedFolder);
-                // Update the folder dropdown
-                updateFolderDropdown(folders);
-            }
-
             if( selectedFolder !== "all" ) foldersOfBookmark.push(selectedFolder);
 
             // Add a new bookmark associated with the selected folder
@@ -110,7 +129,7 @@ function addBookmark(username) {
             bookmarks.push(bookmark);
 
             addBookmarkChrome(
-                {folder: selectedFolder,
+                {folder: foldersOfBookmark,
                  title: titleInput,
                  url: urlInput   
                 });
@@ -125,48 +144,36 @@ function addBookmark(username) {
 }
 
 function addBookmarkChrome(object) {
-    if( object.folder !== "all" ) {
-        /* THIS IS NOW UNNECESSARY !!!
-        chrome.storage.local.get({ folders: [] }, function (result) {
-            var folders = result.folders || [];
-            console.log("hagi1");
-            // chrome.bookmarks.create was here
-        });*/
 
+    if ((object.folder).length > 1) {
+
+        var title = object.folder[(object.folder).length - 1];
         chrome.bookmarks.getTree((tree) => {
-            const rootChildren = tree[0].children; // Accessing the top-level bookmark folders
-            var bookmarkTabFolders = rootChildren[0].children;
-            for (const bookmarkFolder of bookmarkTabFolders) {
-                if (bookmarkFolder.title === object.folder && bookmarkFolder.children) {
-                    chrome.bookmarks.create(
-                        {
-                        parentId: bookmarkFolder.id,
-                        title: object.titleInput,
-                        url: object.urlInput
-                        },
-                        (newBookmark) => {
-                        console.log('Bookmark added:', newBookmark);
-                        //alert('Bookmark added successfully!');
-                        //location.reload(); // Refresh the popup
-                        }
-                    );
-                    break; // Exit the loop after removing the folder
-                }
+            var rootChildren = tree[0].children; // Accessing the top-level bookmark folders
+            // Search for the target folder by name
+            var targetFolder = rootChildren[0].children.find((folder) => folder.title === title && folder.url === undefined);
+
+            if (targetFolder) {
+                // Get the target folder ID
+                chrome.bookmarks.create({
+                    parentId: targetFolder.id,
+                    title: object.title,
+                    url: object.url
+                }, () => {});
+
+            } else {
+                console.error("Target folder not found");
             }
         });
+
+
     } else {
-        chrome.bookmarks.create(
-            {
-              parentId: '1',
-              title: object.title,
-              url: object.url
-            },
-            (newBookmark) => {
-              console.log('Bookmark added:', newBookmark);
-              alert('Bookmark added successfully!');
-              //location.reload(); // Refresh the popup
-            }
-        );
+        chrome.bookmarks.create({
+            parentId: "1",
+            title: object.title,
+            url: object.url
+        }, () => { });
+
     }
 }
 
@@ -192,7 +199,7 @@ function updateFolderDropdown(folders) {
 
 function checkUserExists(user, pass, callback) {
     //alert("in checkUserExists")
-    chrome.storage.local.get({ users: [], loggedin: false }, function (res) {
+    chrome.storage.local.get({ users: [], loggedin: "" }, function (res) {
         let users = res.users;
         var loggedin = res.loggedin;
         let userExists = users.some(function (o) {
@@ -200,7 +207,7 @@ function checkUserExists(user, pass, callback) {
             return o.name === user && o.pass === pass;
         });
 
-        loggedin = userExists;
+        if (userExists) loggedin = user;
         //alert("checkUserExists loggedin: "+loggedin)
         chrome.storage.local.set({ loggedin: loggedin }, function () {
             callback(userExists);
@@ -208,21 +215,112 @@ function checkUserExists(user, pass, callback) {
     });
 }
 
-function showBookmarkPopup() {
-    //alert("in showBookmarkPopup");
-    chrome.storage.local.get({loggedin: false}, (res) => {
+function showBookmarkPopup(callback) {
+    chrome.storage.local.get({loggedin: ""}, (res) => {
         let loggedin = res.loggedin;
-        //alert("showBookmarkPopup loggedin: "+loggedin);
-        if (loggedin) {
+
+        if (loggedin !== "") {
             document.getElementById("login").hidden = true;
             document.getElementById("bookmarks").hidden = false;
-            //alert("divs are updated");
         } else {
             document.getElementById("login").hidden = false;
             document.getElementById("username").value = "";
             document.getElementById("password").value = "";
             document.getElementById("bookmarks").hidden = true;
+            bookmarksTabOnLogout();
+        }
+
+        // Call the callback function with the result
+        callback(loggedin);
+    });
+}
+
+function bookmarksTabOnLogout(){
+    chrome.bookmarks.getTree((tree) => {
+        var rootChildren = tree[0].children;
+        var bookmarksTab = rootChildren[0].children;
+
+        for (const bookmark of bookmarksTab) {
+            chrome.bookmarks.removeTree(bookmark.id, () => {
+                location.reload();
+            });
         }
     });
-    
+}
+
+function bookmarksTabOnLogin(username) {
+    chrome.storage.local.get({ bookmarks: [], folders: [] }, (res) => {
+        var bookmarks = res.bookmarks;
+        var folders = res.folders;
+
+        var users_folders = folders.filter(f => f.created_by === username);
+
+        if (users_folders.length > 0) {
+            for (const folder of users_folders) {
+                chrome.bookmarks.create({
+                    parentId: "1",
+                    title: folder.name,
+                    url: ""
+                }, () => { });
+
+            }
+
+        }
+
+        var users_bookmarks = bookmarks.filter(b => b.created_by === username);
+
+        processBookmarks(users_bookmarks);
+    });
+}
+
+function createBookmarkInFolder(bookmark, targetFolder) {
+    return new Promise((resolve, reject) => {
+        chrome.bookmarks.create({
+            parentId: targetFolder.id,
+            title: bookmark.title,
+            url: bookmark.url
+        }, (result) => {
+            if (!chrome.runtime.lastError) {
+                resolve(result);
+            } else {
+                reject(chrome.runtime.lastError);
+            }
+        });
+    });
+}
+
+async function processBookmarks(bookmarksArray) {
+    for (const bookmark of bookmarksArray) {
+        if (bookmark.folder.length > 1) {
+            var title = bookmark.folder[bookmark.folder.length - 1];
+            console.log("1 " + bookmark.title + ": " + title);
+
+            try {
+                const tree = await new Promise((resolve) => {
+                    chrome.bookmarks.getTree((result) => resolve(result));
+                });
+
+                var rootChildren = tree[0].children; // Accessing the top-level bookmark folders
+                var tab = rootChildren[0].children;
+
+                const targetFolder = tab.find((folder) => folder.title === title);
+
+                console.log("2 " + bookmark.title + ": " + targetFolder.title);
+
+                if (targetFolder) {
+                    await createBookmarkInFolder(bookmark, targetFolder);
+                } else {
+                    console.error("Target folder not found");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        } else {
+            await chrome.bookmarks.create({
+                parentId: "1",
+                title: bookmark.title,
+                url: bookmark.url
+            }, () => { });
+        }
+    }
 }

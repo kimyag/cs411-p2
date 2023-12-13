@@ -14,9 +14,8 @@ var users = [{
   pass: "4567"
 }];
 
-var loggedin = false
 
-chrome.storage.local.set({ users: users, loggedin: loggedin }, function () {
+chrome.storage.local.set({ users: users, loggedin: "" }, function () {
   console.log("Users and loggedin flag are created in background.");
 });
 
@@ -25,8 +24,19 @@ let isFirstWindow = true;
 
 chrome.windows.onCreated.addListener(function() {
   if (isFirstWindow) {
+    //bookmarksTabOnLogout();
+    chrome.bookmarks.getTree((tree) => {
+        var rootChildren = tree[0].children;
+        var bookmarksTab = rootChildren[0].children;
+
+        for (const bookmark of bookmarksTab) {
+            chrome.bookmarks.removeTree(bookmark.id, () => {
+                location.reload();
+            });
+        }
+    });
     isFirstWindow = false;
-    chrome.storage.local.set({ loggedin: false }, () => {
+    chrome.storage.local.set({ loggedin: "" }, () => {
       showBookmarkPopup();
     });
   }

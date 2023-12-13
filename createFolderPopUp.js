@@ -5,12 +5,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function createFolder(username) {
-    var folderNameInput = document.getElementById("folderName");
-    var folderName = folderNameInput.value.trim();
+    var folderName = document.getElementById("folderName").value;
 
     if (folderName) {
         chrome.storage.local.get({ folders: [] }, function (result) {
             var folders = result.folders || [];
+
 
             if (!folders.some(e => e.name === folderName && e.created_by === username)) {
                 folders.push({name: folderName, created_by: username});
@@ -24,7 +24,7 @@ function createFolder(username) {
                     }, () => {});
                     alert(`Folder "${folderName}" has been created`)
                     closePopup();
-                    displayFoldersList(); // Update the displayed folders
+                    displayFoldersList(username); // Update the displayed folders
                 });
             } else {
                 alert("Folder with the same name already exists.");
